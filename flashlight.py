@@ -39,13 +39,13 @@ class Flashlight():
         if self.batteries > 0:
             self.batteries -= 1
             if self.deadBattery:
-                print("You remove 1 dead battery from the "+self.color+" flashlight.")
+                print("You remove 1 dead battery from the "+self.color.upper()+" flashlight.")
                 current_room.room_items.append("dead battery")
             else:
-                print("You remove 1 good battery from the "+self.color+" flashlight.")
+                print("You remove 1 good battery from the "+self.color.upper()+" flashlight.")
                 current_room.room_items.append("battery")
         else:
-            print("There aren't any batteries in the "+self.color+" flashlight.")
+            print("There aren't any batteries in the "+self.color.upper()+" flashlight.")
 
     #setter that removes the bulb if there is a bulb in the flashlight
     #returns 1 if successful, to add 1 bulb to room

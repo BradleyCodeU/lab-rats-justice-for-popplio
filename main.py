@@ -2,6 +2,7 @@ from room import Room
 from flashlight import Flashlight
 from character import Enemy
 from container import Container
+import robotdog import RobotDog
 
 heldItems = []
 myHealth = 53
@@ -16,7 +17,7 @@ kitchen = Room("Kitchen","A dark and dirty room with flies buzzing around. There
 
 # The kitchen has a CUPBOARD object that contains/hides 3 interactive items, a sponge, a plate, a can of soup
 # Once this container is open, the interactive items will no longer be hidden in the container
-kitchen.cupboard = Container("cupboard above the sink",["sponge","plate","can of bOPW soup"])
+kitchen.cupboard = Container("cupboard above the sink",["sponge","plate","can of "+u'\u0411\u043E\u0440\u0449'+" soup"])
 # The kitchen has a CABINET object that contains/hides 2 interactive items, a knife and a twinkie
 # Once this container is open, the interactive items will no longer be hidden in the container
 kitchen.cabinet = Container("cabinet under the sink",["knife","twinkie"])
@@ -33,6 +34,13 @@ smalloffice.package = Container("ozon.ru package",["sheet of bubble wrap","porce
 smalloffice.create_room_item("guinea pig")
 redFlashlight = Flashlight("red",0,False)
 
+# Bathroom
+bathroom = Room("Bathroom","A dirty smelly room with a rusty TOILET and bathtub. There is a CABINET under the sink.")
+bathroom.cabinet = Container("cabinet under the sink",["soap","toothbrush","Scissors"])
+bathroom.toilet = Container("a rusty toilet",["rat"])
+bathroom.create_room_item("Mop")
+
+
 # Laboratory
 #
 lab = Room("Laboratory","A bright room with sunlight shining through windows secured by prison bars. There is a messy SHELF on the north wall.")
@@ -41,9 +49,16 @@ lab.shelf = Container("shelf",["brass key","spork","yellow flashlight"],"on")
 lab.create_room_item("rat")
 yellowFlashlight = Flashlight("yellow",1,True)
 
+#
+
 # Supply Closet
 #
 supplycloset = Room("Supply Closet","A small dark room with a musty smell. On one side is a filing CABINET and a large plastic BIN. On the other side is a SHELF with supplies and a SHOEBOX.")
+supplycloset.cabinet = Container ("cabinet",["Grey Robot Dog","Sponge"])
+supplycloset.bin = Container ("bin",["Fork"])
+supplycloset.shelf = Container("shelf",["Old book"])
+greyrobotdog = RobotDog("grey",0,False)
+
 
 # Create a fake room called locked that represents all permenently locked doors
 #
@@ -52,7 +67,7 @@ locked = Room("locked","")
 # Connect rooms. These are one-way connections.
 kitchen.link_room(locked, "EAST")
 kitchen.link_room(smalloffice, "SOUTH")
-kitchen.link_room(locked, "WEST")
+kitchen.link_room(bathroom, "WEST")
 supplycloset.link_room(smalloffice, "EAST")
 smalloffice.link_room(kitchen, "NORTH")
 smalloffice.link_room(lab, "EAST")
@@ -60,6 +75,7 @@ smalloffice.link_room(locked, "SOUTH")
 smalloffice.link_room(supplycloset, "WEST")
 lab.link_room(locked, "SOUTH")
 lab.link_room(smalloffice, "WEST")
+bathroom.link_room(kitchen,"EAST")
 current_room = kitchen
 
 # Set up characters
@@ -88,6 +104,8 @@ def playerItems():
         redFlashlight.get_interface(heldItems,current_room)
     if "yellow flashlight" in heldItems:
         yellowFlashlight.get_interface(heldItems,current_room)
+    if "Grey Robot Dog" in heldItems:
+        greyrobotdog.get_Interface(heldItems,current_room)
 
 # This fuction checks the player's command and then runs the corresponding method
 def checkUserInput(current_room,command,heldItems):
@@ -102,6 +120,9 @@ def checkUserInput(current_room,command,heldItems):
         redFlashlight.check_input(command,heldItems,current_room)
     elif "yellow flashlight" in heldItems and "YELLOW FLASHLIGHT" in command:
         yellowFlashlight.check_input(command,heldItems,current_room)
+    elif "Grey Robot Dog" in heldItems and "GREY ROBOT DOG" in command:
+        greyrobotdog.check_input(command,heldItems,current_room)
+
 
     # ********************************* USE, TAKE, DROP *********************************
     # Use an item to fight an enemy
@@ -141,7 +162,7 @@ def checkUserInput(current_room,command,heldItems):
         # Open smalloffice.desk and concat each of the contents to the end of room_items
         current_room.room_items += smalloffice.package.open()
     elif current_room.name == "Small Office" and command == "READ":
-        print("POCCNR??? You can't read it. It's written is some strange Cyrillic script.")
+        print(u'\u0420\u043e\u0441\u0441\u0438\u044f\u262D'+" You can't read it. It's written is some strange Cyrillic script.")
     elif current_room.name == "Small Office" and command == "DESK" and "brass key" in heldItems:
         # Open smalloffice.desk and concat each of the contents to the end of room_items
         print("You use the brass key to unlock the desk.")
@@ -151,6 +172,24 @@ def checkUserInput(current_room,command,heldItems):
     elif current_room.name == "Laboratory" and command == "SHELF":
         # Open lab.shelf and concat each of the contents to the end of room_items
         current_room.room_items += lab.shelf.open()
+    elif current_room.name == "Bathroom" and command == "CABINET" and (("red flashlight" in heldItems and redFlashlight.isOn) or ("yellow flashlight" in heldItems and yellowFlashlight.isOn)):
+        # Open kitchen.cabinet and concat each of the contents to the end of room_items
+        print("You use the flashlight to look inside the cabinet.")
+        current_room.room_items += bathroom.cabinet.open()
+    elif current_room.name == "Bathroom" and command == "CABINET":
+        print("You check the cabinet, but it's too dark to see if there is anything inside.")
+    elif current_room.name == "Bathroom" and command == "TOILET":
+        print("You open the toiler lid.")
+        current_room.room_items += bathroom.toilet.open()
+    elif current_room.name == "Supply Closet" and command == "CABINET":
+        print("You open the cabinet in the supply closet")
+        current_room.room_items += supplycloset.cabinet.open()
+    elif current_room.name == "Supply Closet" and command == "BIN":
+        print("You look inside the bin.")
+        current_room.room_items += supplycloset.bin.open()
+    elif current_room.name == "Supply Closet" and command == "SHELF":
+        print("You find some items on the shelf.")
+        current_room.room_items += supplycloset.shelf.open()
 
     # ********************************* MOVE *********************************
     else:
