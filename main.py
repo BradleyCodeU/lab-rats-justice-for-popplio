@@ -2,7 +2,7 @@ from room import Room
 from flashlight import Flashlight
 from character import Enemy
 from container import Container
-import robotdog import RobotDog
+from robotdog import RobotDog
 
 heldItems = []
 myHealth = 53
